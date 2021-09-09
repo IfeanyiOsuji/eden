@@ -1,10 +1,11 @@
 import json
 
 
-def register_user(user):
-    with open("users.json", 'w+') as user_data:
-        users_data = json.load(user_data)
-    print(json.dump(users_dict, users_data))
+# def register_user(user):
+    # with open("/home/ifeanyi/PycharmProjects/eden/model_functions/users.json", mode='r+', encoding='utf-8') as user_data:
+    #     user_data.seek(0)
+    #     users_data: str = json.loads(json.dumps(user_data))
+    #     print(users_data)
 
 
-register_user(" ")
+# register_user(" ")

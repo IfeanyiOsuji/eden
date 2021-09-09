@@ -1,8 +1,12 @@
 import unittest
 
+import models
+import service.user_service
 from exception.exception import CardDoesNotExistException, InvalidAddressException, CategoryNotFoundException
 from models.enum_types import UserType, CardType
-from models.user import User, Address, CardDetails, Customer, Shop, Category, Product
+from models.user import User, Address, CardDetails, Customer, Shop, Category, Product, Merchant
+from repository.user_repository import UserRepository
+from service import user_service
 
 
 class MyTestCase(unittest.TestCase):
@@ -10,27 +14,33 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(True, True)
 
     def test_that_user_has_first_name(self):
-        user = User(id='', first_name= 'Ifeanyi',last_name= 'Osuji', email='oi@gmail.com',password= '2217', type_of_user=UserType.ADMIN)
+        user = User(id='', first_name='Ifeanyi', last_name='Osuji', email='oi@gmail.com', password='2217',
+                    type_of_user=UserType.ADMIN)
         self.assertEqual('Ifeanyi', user.first_name)
 
     def test_that_user_has_last_name(self):
-        user = User(id='',first_name= 'Ifeanyi',last_name= 'Osuji',email= 'oi@gmail.com',password= '2217', type_of_user=UserType.ADMIN)
+        user = User(id='', first_name='Ifeanyi', last_name='Osuji', email='oi@gmail.com', password='2217',
+                    type_of_user=UserType.ADMIN)
         self.assertEqual('Osuji', user.last_name)
 
     def test_that_user_has_email(self):
-        user = User(id='',first_name= 'Ifeanyi',last_name= 'Osuji',email= 'oi@gmail.com',password= '2217', type_of_user=UserType.CUSTOMER)
+        user = User(id='', first_name='Ifeanyi', last_name='Osuji', email='oi@gmail.com', password='2217',
+                    type_of_user=UserType.CUSTOMER)
         self.assertEqual('oi@gmail.com', user.email)
 
     def test_that_user_has_password(self):
-        user = User(id='',first_name= 'Ifeanyi', last_name='Osuji', email='oi@gmail.com', password='2217', type_of_user=UserType.ADMIN)
+        user = User(id='', first_name='Ifeanyi', last_name='Osuji', email='oi@gmail.com', password='2217',
+                    type_of_user=UserType.ADMIN)
         self.assertEqual('2217', user.password)
 
     def test_that_individual_is_a_user(self):
-        user = User(id='',first_name= 'Ifeanyi', last_name='Osuji', email='oi@gmail.com', password='2217', type_of_user=UserType.CUSTOMER)
+        user = User(id='', first_name='Ifeanyi', last_name='Osuji', email='oi@gmail.com', password='2217',
+                    type_of_user=UserType.CUSTOMER)
         self.assertEqual(UserType.CUSTOMER, user.type_of_user)
 
     def test_that_individual_must_be_of_type_user(self):
-        user = User(id='',first_name= 'Ifeanyi',last_name= 'Osuji',email= 'oi@gmail.com',password= '2217', type_of_user=UserType.ADMIN)
+        user = User(id='', first_name='Ifeanyi', last_name='Osuji', email='oi@gmail.com', password='2217',
+                    type_of_user=UserType.ADMIN)
         self.assertEqual(UserType.ADMIN, user.type_of_user)
 
     def test_that_user_address_has_number(self):
@@ -46,7 +56,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual('Yaba', address.town)
 
     def test_that_user_address_has_state(self):
-        address = Address(1233, 'Sabo', 'Yaba','Lagos')
+        address = Address(1233, 'Sabo', 'Yaba', 'Lagos')
         self.assertEqual('Lagos', address.state)
 
     def test_that_user_card_has_name(self):
@@ -70,7 +80,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_that_customer_address_is_of_type_address(self):
         address = Address()
-        card = CardDetails( card_type=CardType.VISA)
+        card = CardDetails(card_type=CardType.VISA)
         customer = Customer(type_of_user=UserType.CUSTOMER, address=address, card_details=card)
         self.assertEqual(address, customer.address)
 
@@ -95,7 +105,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual('1 terabite, 18git ram, 24 megapixel', product.description)
 
     def test_that_product_has_price(self):
-        product = Product(price= 900000.00, category=Category())
+        product = Product(price=900000.00, category=Category())
         self.assertEqual(900000.00, product.price)
 
     def test_that_product_has_category(self):
@@ -118,8 +128,53 @@ class MyTestCase(unittest.TestCase):
         shop = Shop(description='maggie shop that has every thing you need')
         self.assertEqual('maggie shop that has every thing you need', shop.description)
 
-    def test_that_shop_has_list_of_products(self):
-        pass
+    def test_that_user_repository_has_users(self):
+        address = Address()
+        card = CardDetails(card_type=CardType.VISA)
+        customers = Customer(type_of_user=UserType.CUSTOMER, address=address, card_details=card)
+        user_repository = UserRepository()
+        user_service.add_user(user=customers)
+        self.assertEqual(1, len(user_service.users.users["customer"]))
+        merchant = Merchant(first_name='Janet', last_name='Akin', type_of_user=UserType.MERCHANT, address=address,
+                            card_details=CardDetails(card_type=CardType.VISA))
+        user_service.add_user(merchant)
+        self.assertEqual(1, len(user_service.users.users["Merchant"]))
+
+    def test_that_all_customers_can_be_found(self):
+        customer1 = Customer(first_name='Kelvin', last_name="Okoro", type_of_user=UserType.CUSTOMER, address=Address(),
+                             card_details=CardDetails(card_type=CardType.VISA))
+        customer2 = Customer(first_name="Confi", last_name="Okere", type_of_user=UserType.CUSTOMER, address=Address(),
+                             card_details=CardDetails(card_type=CardType.VERVE))
+        customer3 = Customer(first_name="Janet", last_name="Ishola", type_of_user=UserType.CUSTOMER, address=Address(),
+                             card_details=CardDetails(card_type=CardType.MASTERCARD))
+        user_service.add_user(user=customer1)
+        user_service.add_user(user=customer2)
+        user_service.add_user(user=customer3)
+        self.assertEqual(3, len(user_service.users.users['customer']))
+
+    def test_that_customer_can_be_found_by_id(self):
+        customer1 = Customer(id=1,first_name='Kelvin', last_name="Okoro", type_of_user=UserType.CUSTOMER, address=Address(),
+                             card_details=CardDetails(card_type=CardType.VISA))
+        customer2 = Customer(id=2, first_name="Confi", last_name="Okere", type_of_user=UserType.CUSTOMER, address=Address(),
+                             card_details=CardDetails(card_type=CardType.VERVE))
+        customer3 = Customer(id=3, first_name="Janet", last_name="Ishola", type_of_user=UserType.CUSTOMER, address=Address(),
+                             card_details=CardDetails(card_type=CardType.MASTERCARD))
+        user_service.add_user(user=customer1)
+        user_service.add_user(user=customer2)
+        user_service.add_user(user=customer3)
+        self.assertEqual(customer3, user_service.find_customer_by_id(3))
+
+    def test_that_merchant_can_be_found_by_id(self):
+        merchant1 = Merchant(id=1,first_name='Kelvin', last_name="Okoro", type_of_user=UserType.MERCHANT, address=Address(),
+                             card_details=CardDetails(card_type=CardType.VISA))
+        merchant2 = Merchant(id=2, first_name="Confi", last_name="Okere", type_of_user=UserType.MERCHANT, address=Address(),
+                             card_details=CardDetails(card_type=CardType.VERVE))
+        merchant3 = Merchant(id=3, first_name="Janet", last_name="Ishola", type_of_user=UserType.MERCHANT, address=Address(),
+                             card_details=CardDetails(card_type=CardType.MASTERCARD))
+        user_service.add_user(user=merchant1)
+        user_service.add_user(user=merchant2)
+        user_service.add_user(user=merchant3)
+        self.assertEqual(merchant3, user_service.find_merchant_by_id(3))
 
 
 if __name__ == '__main__':

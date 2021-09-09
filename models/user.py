@@ -17,6 +17,9 @@ class User:
             raise InvalidUserException()
 
 
+def __str__(self):
+    return f'${self.first_name} ${self.last_name}'
+
 
 class Address:
     def __init__(self, number=0, street_name='', town='', state=''):
@@ -52,6 +55,9 @@ class Customer(User):
             self.card_details = card_details
         else:
             raise InvalidCardException()
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
 
 
 class Category:
@@ -96,5 +102,9 @@ class Merchant(User):
             self.card_details = card_details
         else:
             raise InvalidCardException()
+        self.cardDetails = card_details
         self.shop_id = shop_id
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
 
